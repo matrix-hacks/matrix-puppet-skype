@@ -1,0 +1,13 @@
+{
+  "skype": {
+    "username": "",
+    "password": ""
+  },
+  "registrationPath": "skype-registration.yaml",
+  "port": 8090,
+  "bridge": {
+    "homeserverUrl":"https://your.home.server",
+    "domain": "your.home.server",
+    "registration": "skype-registration.yaml"
+  }
+}

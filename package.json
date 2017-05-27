@@ -1,0 +1,14 @@
+{
+  "name": "matrix-puppet-skype",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "DEBUG=matrix-puppet:* node index.js",
+    "clean": "rm *.sqlite; rm data/*"
+  },
+  "dependencies": {
+    "matrix-puppet-bridge": "^1.15.1",
+    "skype-http": "^0.0.12"
+  }
+}
