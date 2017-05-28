@@ -6,17 +6,13 @@ This is a Matrix bridge for Skype.
 
 ## features
 
-- [x] Skype to Matrix direct text message
-- [x] Matrix to Skype direct text message
-- [] Skype to Matrix direct image attachment message
+- [ ] Skype to Matrix direct text message
+- [ ] Matrix to Skype direct text message
+- [ ] Skype to Matrix direct image attachment message
 - [ ] Matrix to Skype direct image attachment message
 - [ ] group messaging
 - [ ] read receipts
 - [ ] contact list syncing
-
-## requirements
-
-You need an iOS and Android phone with an existing Skype account that you are willing to link with the Skype client in this bridge.
 
 ## installation
 

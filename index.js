@@ -19,66 +19,43 @@ class App extends MatrixPuppetBridgeBase {
     return "Skype";
   }
   initThirdPartyClient() {
-    this.client = new SkypeClient("matrix");
+    this.client = new SkypeClient();
 
+    this.client.on('message', (data) => {
+      console.log('>>> message', data);
 
-    // Log every event
-    api.on("event", (ev: events.EventMessage) => {
-      console.log(JSON.stringify(ev, null, 2));
-    });
+      const {
+        from: { username },
+        conversation, content
+      } = data;
 
-    // Log every error
-    api.on("error", (err: Error) => {
-      console.error("An error was detected:");
-      console.error(err);
-    });
-
-
-    this.client.on('message', (ev) => {
-      const { source, message } = ev.data;
       this.handleSkypeMessage({
-        roomId: source,
-        senderId: source,
-        senderName: source,
-      }, message);
+        roomId: conversation,
+        senderId: username
+      }, content);
     });
 
-    this.client.on('sent', (ev) => {
-      const { destination, message } = ev.data;
+    this.client.on('sent', (data) => {
+      console.log('>>> sent', ev);
+      const {
+        conversation, content
+      } = data;
+
       this.handleSkypeMessage({
-        roomId: destination,
-        senderId: undefined,
-        senderName: destination,
-      }, message);
+        roomId: conversation,
+        senderId: undefined
+      }, content);
     });
 
-    return this.client.start();
+    return this.client.connect();
   }
   handleSkypeMessage(payload, message) {
-    if ( message.body ) {
-      payload.text = message.body
-    }
-    if ( message.attachments.length === 0 ) {
-      return this.handleThirdPartyRoomMessage(payload);
-    } else {
-      // TODO handle array of attachments!
-      // XXX only takes first one now.
-      let att = message.attachments[0];
-      payload.buffer = new Buffer(att.data);
-      payload.mimetype = att.contentType;
-      if ( message.attachments.length > 1 ) {
-        this.sendStatusMsg({}, "dont know how to handle more than one attachment! ignored all but the first one.");
-      }
-      if ( payload.mimetype.match(/^image/) ) {
-        return this.handleThirdPartyRoomImageMessage(payload);
-      } else {
-        return this.sendStatusMsg({}, "dont know how to deal with filetype", payload);
-      }
-    }
+    return this.handleThirdPartyRoomMessage(payload);
   }
-  getThirdPartyRoomDataById(phoneNumber) {
+  getThirdPartyRoomDataById(id) {
+    let name = this.client.getContactName(id) || id;
     return Promise.resolve({
-      name: '',
+      name: name,
       topic: "Skype Direct Message"
     })
   }
@@ -86,7 +63,9 @@ class App extends MatrixPuppetBridgeBase {
     // no-op for now
   }
   sendMessageAsPuppetToThirdPartyRoomWithId(id, text) {
-    return this.client.sendMessage(id, text);
+    return this.client.sendMessage(id, {
+      textContent: text
+    });
   }
 }
 

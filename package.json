@@ -5,12 +5,12 @@
   "license": "MIT",
   "scripts": {
     "start": "DEBUG=matrix-puppet:* node index.js",
-    "clean": "rm *.sqlite; rm data/*"
+    "postinstall": "cd node_modules/skype-http && npm install"
   },
   "dependencies": {
     "bluebird": "^3.5.0",
     "debug": "^2.6.8",
     "matrix-puppet-bridge": "^1.15.1",
-    "skype-http": "^0.0.12"
+    "skype-http": "ocilo/skype-http#08666d1"
   }
 }
