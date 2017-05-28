@@ -47,6 +47,7 @@ class Client extends EventEmitter {
       api.on("error", (err) => {
         console.error("An error was detected:");
         console.error(err);
+        this.emit('error', err);
       });
 
       return api.getContacts().then((contacts)=>{
@@ -70,10 +71,7 @@ class Client extends EventEmitter {
     console.log('>>>>handle message', resource);
   }
   sendMessage(threadId, msg) {
-    return this.api.sendMessage(msg, threadId).then(res=>{
-      debug('sent msg, info back', res);
-      return res;
-    }).catch(console.error);
+    return this.api.sendMessage(msg, threadId);
   }
   getContactName(id) {
     let contact = this.contacts.find((c)=> {

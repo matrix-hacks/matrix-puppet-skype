@@ -21,9 +21,12 @@ class App extends MatrixPuppetBridgeBase {
   initThirdPartyClient() {
     this.client = new SkypeClient();
 
-    this.client.on('message', (data) => {
-      console.log('>>> message', data);
+    this.client.on('error', (err) => {
+      this.sendStatusMsg({}, err);
+    });
 
+    this.client.on('message', (data) => {
+      debug('message', data);
       const {
         from: { username },
         conversation, content
@@ -36,10 +39,8 @@ class App extends MatrixPuppetBridgeBase {
     });
 
     this.client.on('sent', (data) => {
-      console.log('>>> sent', ev);
-      const {
-        conversation, content
-      } = data;
+      debug('sent', data);
+      const { conversation, content } = data;
 
       this.handleSkypeMessage({
         roomId: conversation,
@@ -50,6 +51,7 @@ class App extends MatrixPuppetBridgeBase {
     return this.client.connect();
   }
   handleSkypeMessage(payload, message) {
+    payload.text = message;
     return this.handleThirdPartyRoomMessage(payload);
   }
   getThirdPartyRoomDataById(id) {
