@@ -6,8 +6,8 @@ This is a Matrix bridge for Skype.
 
 ## features
 
-- [ ] Skype to Matrix direct text message
-- [ ] Matrix to Skype direct text message
+- [x] Skype to Matrix direct text message
+- [x] Matrix to Skype direct text message
 - [ ] Skype to Matrix direct image attachment message
 - [ ] Matrix to Skype direct image attachment message
 - [ ] group messaging

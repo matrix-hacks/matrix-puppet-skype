@@ -24,7 +24,6 @@ class Client extends EventEmitter {
       verbose: true
     }
 
-    console.log(opts);
     return skypeHttp.connect(opts).then(api => {
       this.api = api;
 
@@ -66,9 +65,6 @@ class Client extends EventEmitter {
       console.log(err);
       process.exit(0);
     });
-  }
-  handleMessage(resource) {
-    console.log('>>>>handle message', resource);
   }
   sendMessage(threadId, msg) {
     return this.api.sendMessage(msg, threadId);

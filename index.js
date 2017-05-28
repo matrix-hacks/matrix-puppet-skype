@@ -11,6 +11,9 @@ const path = require('path');
 const puppet = new Puppet(path.join(__dirname, './config.json' ));
 const debug = require('debug')('matrix-puppet:skype');
 
+const a2b = a => new Buffer(a).toString('base64');
+const b2a = b => new Buffer(b, 'base64').toString('ascii');
+
 class App extends MatrixPuppetBridgeBase {
   getServicePrefix() {
     return "skype";
@@ -19,7 +22,7 @@ class App extends MatrixPuppetBridgeBase {
     return "Skype";
   }
   initThirdPartyClient() {
-    this.client = new SkypeClient();
+    this.client = new SkypeClient(config.skype);
 
     this.client.on('error', (err) => {
       this.sendStatusMsg({}, err);
@@ -28,13 +31,13 @@ class App extends MatrixPuppetBridgeBase {
     this.client.on('message', (data) => {
       debug('message', data);
       const {
-        from: { username },
+        from: { raw },
         conversation, content
       } = data;
 
       this.handleSkypeMessage({
-        roomId: conversation,
-        senderId: username
+        roomId: a2b(conversation),
+        senderId: a2b(raw)
       }, content);
     });
 
@@ -43,7 +46,7 @@ class App extends MatrixPuppetBridgeBase {
       const { conversation, content } = data;
 
       this.handleSkypeMessage({
-        roomId: conversation,
+        roomId: a2b(conversation),
         senderId: undefined
       }, content);
     });
@@ -52,10 +55,19 @@ class App extends MatrixPuppetBridgeBase {
   }
   handleSkypeMessage(payload, message) {
     payload.text = message;
+    payload.roomId.replace(':', '^');
     return this.handleThirdPartyRoomMessage(payload);
   }
+  getThirdPartyUserDataById(id) {
+    let raw = b2a(id);
+    let name = this.client.getContactName(raw) || raw;
+    return Promise.resolve({
+      senderName: name
+    })
+  }
   getThirdPartyRoomDataById(id) {
-    let name = this.client.getContactName(id) || id;
+    let raw = b2a(id);
+    let name = this.client.getContactName(raw) || raw;
     return Promise.resolve({
       name: name,
       topic: "Skype Direct Message"
@@ -65,7 +77,7 @@ class App extends MatrixPuppetBridgeBase {
     // no-op for now
   }
   sendMessageAsPuppetToThirdPartyRoomWithId(id, text) {
-    return this.client.sendMessage(id, {
+    return this.client.sendMessage(b2a(id), {
       textContent: text
     });
   }
