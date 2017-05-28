@@ -1,8 +1,6 @@
-**WIP**
-
 # skype-bridge
 
-This is a Matrix bridge for Skype.
+This is a Matrix bridge for Skype. It uses [skype-http](https://github.com/ocilo/skype-http) under the hood.
 
 ## features
 
