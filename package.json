@@ -11,6 +11,8 @@
     "bluebird": "^3.5.0",
     "debug": "^2.6.8",
     "matrix-puppet-bridge": "^1.15.1",
-    "skype-http": "git+https://github.com/Sorunome/skype-http.git"
+    "skype-http": "ocilo/skype-http#08666d1",
+    "striptags": "^3.0.1",
+    "html-entities": "^1.2.1"
   }
 }

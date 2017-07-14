@@ -10,6 +10,7 @@ const config = require('./config.json');
 const path = require('path');
 const puppet = new Puppet(path.join(__dirname, './config.json' ));
 const debug = require('debug')('matrix-puppet:skype');
+const { skypeify, deskypeify } = require('./skypeify');
 
 const a2b = a => new Buffer(a).toString('base64');
 const b2a = b => new Buffer(b, 'base64').toString('ascii');
@@ -31,31 +32,46 @@ class App extends MatrixPuppetBridgeBase {
     this.client.on('message', (data) => {
       debug('message', data);
       const {
+        type,
         from: { raw },
         conversation, content
       } = data;
+      console.log(data);
 
       this.handleSkypeMessage({
+        type: type,
         roomId: a2b(conversation),
-        senderId: a2b(raw)
-      }, content);
+        sender: raw,
+        content: content
+      });
     });
 
     this.client.on('sent', (data) => {
       debug('sent', data);
-      const { conversation, content } = data;
+      const { type, conversation, content } = data;
 
       this.handleSkypeMessage({
+        type: type,
         roomId: a2b(conversation),
-        senderId: undefined
-      }, content);
+        sender: undefined,
+        content: content
+      });
     });
 
     return this.client.connect();
   }
-  handleSkypeMessage(payload, message) {
-    payload.text = message;
-    payload.roomId.replace(':', '^');
+  handleSkypeMessage(data) {
+    let payload = {
+      roomId: data.roomId.replace(':', '^'),
+      senderId: undefined,
+      senderName: this.client.getContactName(data.sender)
+    };
+    if (data.sender === undefined) {
+      payload.senderId = undefined;
+    } else {
+      payload.senderId = a2b(data.sender);
+    }
+    payload.text = deskypeify(data.content);
     return this.handleThirdPartyRoomMessage(payload);
   }
   getThirdPartyUserDataById(id) {
@@ -78,7 +94,7 @@ class App extends MatrixPuppetBridgeBase {
   }
   sendMessageAsPuppetToThirdPartyRoomWithId(id, text) {
     return this.client.sendMessage(b2a(id), {
-      textContent: text
+      textContent: skypeify(text)
     });
   }
   sendImageMessageAsPuppetToThirdPartyRoomWithId(id, data) {
