@@ -81,6 +81,13 @@ class App extends MatrixPuppetBridgeBase {
       textContent: text
     });
   }
+  sendImageMessageAsPuppetToThirdPartyRoomWithId(id, data) {
+    console.log(data);
+    return this.client.sendPictureMessage(b2a(id), {
+      url: data.url,
+      name: data.text
+    });
+  }
 }
 
 new Cli({

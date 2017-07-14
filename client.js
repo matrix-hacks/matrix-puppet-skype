@@ -11,6 +11,9 @@ const EventEmitter = require('events').EventEmitter;
 const readFile = Promise.promisify(require('fs').readFile);
 const writeFile = Promise.promisify(require('fs').writeFile);
 
+const Entities = require('html-entities').AllHtmlEntities;
+const entities = new Entities();
+
 class Client extends EventEmitter {
   constructor(auth) {
     super();
@@ -29,16 +32,25 @@ class Client extends EventEmitter {
 
       api.on("event", (ev) => {
         //console.log(JSON.stringify(ev, null, 2));
+        console.log(ev);
+        if (ev && ev.resource) {
+          switch (ev.resource.type) {
+            case "Text":
+            case "RichText":
+              if (ev.resource.content.slice(-1) !== '\ufeff') {
+                if (ev.resource.from.username === api.context.username) {
+                  // the lib currently hides this kind from us. but i want it.
 
-        if (ev && ev.resource && ev.resource.type === "Text" || ev.resource.type === "RichText") {
-          if (ev.resource.from.username === api.context.username) {
-            // the lib currently hides this kind from us. but i want it.
-
-            this.emit('sent', ev.resource);
-          } else {
-            this.emit('message', ev.resource);
+                  this.emit('sent', ev.resource);
+                } else {
+                  this.emit('message', ev.resource);
+                }
+              }
+              break;
+            case "RichText/UriObject":
+              this.emit('message', ev.resource)
+              break;
           }
-
         }
       });
 
@@ -69,6 +81,12 @@ class Client extends EventEmitter {
   sendMessage(threadId, msg) {
     return this.api.sendMessage(msg, threadId);
   }
+  sendPictureMessage(threadId, data) {
+    return this.api.sendMessage({
+      textContent: '[Image] <a href="'+entities.encode(data.url)+'">'+entities.encode(entities.encode(data.name))+'</a> \ufeff'
+    }, threadId);
+//    return this.api.sendPictureMessage(data, threadId); // it was worth a try...
+  }
   getContactName(id) {
     let contact = this.contacts.find((c)=> {
       return c.id.id === id || c.id.raw === id;
@@ -94,4 +112,3 @@ if (!module.parent) {
     client.sendMessage('8:green.streak', { textContent: 'test from nodejs' });
   });
 }
-
