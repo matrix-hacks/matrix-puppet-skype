@@ -32,7 +32,7 @@ class Client extends EventEmitter {
 
       api.on("event", (ev) => {
         //console.log(JSON.stringify(ev, null, 2));
-        console.log(ev);
+
         if (ev && ev.resource) {
           switch (ev.resource.type) {
             case "Text":
@@ -48,7 +48,7 @@ class Client extends EventEmitter {
               }
               break;
             case "RichText/UriObject":
-              this.emit('message', ev.resource)
+              this.emit('image', ev.resource)
               break;
           }
         }

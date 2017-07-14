@@ -36,7 +36,6 @@ class App extends MatrixPuppetBridgeBase {
         from: { raw },
         conversation, content
       } = data;
-      console.log(data);
 
       this.handleSkypeMessage({
         type: type,
@@ -58,9 +57,24 @@ class App extends MatrixPuppetBridgeBase {
       });
     });
 
+    this.client.on('image', (data) => {
+      const {
+        type,
+        from: { raw },
+        conversation, uri, original_file_name
+      } = data;
+      this.handleSkypeImage({
+        type: type,
+        roomId: a2b(conversation),
+        sender: raw,
+        url: uri+'/views/imgpsh_fullsize',
+        name: original_file_name
+      });
+    });
+
     return this.client.connect();
   }
-  handleSkypeMessage(data) {
+  getPayload(data) {
     let payload = {
       roomId: data.roomId.replace(':', '^'),
       senderId: undefined,
@@ -71,7 +85,16 @@ class App extends MatrixPuppetBridgeBase {
     } else {
       payload.senderId = a2b(data.sender);
     }
+    return payload;
+  }
+  handleSkypeMessage(data) {
+    let payload = this.getPayload(data);
     payload.text = deskypeify(data.content);
+    return this.handleThirdPartyRoomMessage(payload);
+  }
+  handleSkypeImage(data) {
+    let payload = this.getPayload(data);
+    payload.text = '[Image] ('+data.name+') '+data.url;
     return this.handleThirdPartyRoomMessage(payload);
   }
   getThirdPartyUserDataById(id) {
