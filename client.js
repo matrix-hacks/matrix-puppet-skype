@@ -94,4 +94,3 @@ if (!module.parent) {
     client.sendMessage('8:green.streak', { textContent: 'test from nodejs' });
   });
 }
-
