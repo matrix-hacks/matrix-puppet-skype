@@ -104,8 +104,17 @@ class App extends MatrixPuppetBridgeBase {
   }
   handleSkypeImage(data) {
     let payload = this.getPayload(data);
-    payload.text = '[Image] ('+data.name+') '+data.url;
-    return this.handleThirdPartyRoomMessage(payload);
+    payload.text = data.name;
+    payload.path = ''; // needed to not create internal errors
+    return this.client.downloadImage(data.url).then(({buffer, type})=> {
+      payload.buffer = buffer;
+      payload.mimetype = type;
+      return this.handleThirdPartyRoomImageMessage(payload);
+    }).catch((err) => {
+      console.log(err);
+      payload.text = '[Image] ('+data.name+') '+data.url;
+      return this.handleThirdPartyRoomMessage(payload);
+    });
   }
   getThirdPartyUserDataById(id) {
     let raw = b2a(id);

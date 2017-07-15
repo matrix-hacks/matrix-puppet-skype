@@ -8,6 +8,7 @@ const Promise = require('bluebird');
 const EventEmitter = require('events').EventEmitter;
 
 const Entities = require('html-entities').AllHtmlEntities;
+const { download } = require('./utils');
 const entities = new Entities();
 
 class Client extends EventEmitter {
@@ -110,6 +111,14 @@ class Client extends EventEmitter {
     if (contact) {
       return contact;
     }
+  }
+  downloadImage(url) {
+    return download.getBufferAndType(url, {
+      cookies: this.api.context.cookies,
+      headers: {
+        Authorization: 'skype_token ' + this.api.context.skypeToken.value
+      }
+    });
   }
 }
 
