@@ -1,6 +1,7 @@
 const fs = require('fs');
 const skypeHttp = require('skype-http');
 const debug = require('debug')('matrix-puppet:skype:client');
+const Promise = require('bluebird');
 
 // look at
 // https://github.com/ocilo/skype-http/blob/master/src/example/main.ts
@@ -94,8 +95,12 @@ class Client extends EventEmitter {
   }
   sendPictureMessage(threadId, data) {
     this.selfSentFiles.push(data.name);
-    return this.api.sendImage(data, threadId).catch((err) => {
-      removeSelfSentFile(data.name);
+    return this.api.sendImage({
+      file: data.file,
+      name: data.name
+    }, threadId).catch((err) => {
+      this.removeSelfSentFile(data.name);
+      this.api.sendMessage({ textContent: '[Image] <a href="'+entities.encode(data.url)+'">'+entities.encode(data.name)+'</a>' }, threadId);
     });
   }
   getContactName(id) {

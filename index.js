@@ -136,7 +136,8 @@ class App extends MatrixPuppetBridgeBase {
             tmpFile.close(() => {
               resolve(this.client.sendPictureMessage(b2a(id), {
                 file: path,
-                name: data.text
+                name: data.text,
+                url: data.url
               }));
             });
           })
