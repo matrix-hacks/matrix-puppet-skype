@@ -81,14 +81,20 @@ class App extends MatrixPuppetBridgeBase {
   getPayload(data) {
     let payload = {
       roomId: data.roomId.replace(':', '^'),
-      senderId: undefined,
-      senderName: this.client.getContactName(data.sender)
     };
     if (data.sender === undefined) {
       payload.senderId = undefined;
     } else {
+      let contact = this.client.getContact(data.sender);
       payload.senderId = a2b(data.sender);
+      if (contact) {
+        payload.senderName = contact.name.displayName;
+        payload.avatarUrl = contact.avatarUrl;
+      } else {
+        payload.senderName = data.sender.substr(data.sender.indexOf(":")+1);
+      }
     }
+    console.log(payload);
     return payload;
   }
   handleSkypeMessage(data) {

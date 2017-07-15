@@ -103,12 +103,13 @@ class Client extends EventEmitter {
       this.api.sendMessage({ textContent: '[Image] <a href="'+entities.encode(data.url)+'">'+entities.encode(data.name)+'</a>' }, threadId);
     });
   }
-  getContactName(id) {
-    let contact = this.contacts.find((c)=> {
+  getContact(id) {
+    let contact = this.contacts.find((c) => {
       return c.id.id === id || c.id.raw === id;
     });
-    if (contact)
-      return contact.name.displayName;
+    if (contact) {
+      return contact;
+    }
   }
 }
 
