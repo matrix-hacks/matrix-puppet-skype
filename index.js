@@ -11,6 +11,10 @@ const path = require('path');
 const puppet = new Puppet(path.join(__dirname, './config.json' ));
 const debug = require('debug')('matrix-puppet:skype');
 const { skypeify, deskypeify } = require('./skypeify');
+const tmp = require('tmp');
+const http = require('http');
+const Promise = require('bluebird');
+const fs = require('fs');
 
 const a2b = a => new Buffer(a).toString('base64');
 const b2a = b => new Buffer(b, 'base64').toString('ascii');
@@ -121,10 +125,27 @@ class App extends MatrixPuppetBridgeBase {
     });
   }
   sendImageMessageAsPuppetToThirdPartyRoomWithId(id, data) {
-    console.log(data);
-    return this.client.sendPictureMessage(b2a(id), {
-      url: data.url,
-      name: data.text
+    let cleanup = () => {};
+    return new Promise((resolve, reject) => {
+      tmp.file((err, path, fd, cleanupCallback) => {
+        cleanup = cleanupCallback;
+        let tmpFile = fs.createWriteStream(path);
+        let request = http.get(data.url, (response) => {
+          response.pipe(tmpFile);
+          tmpFile.on('finish', () => {
+            tmpFile.close(() => {
+              resolve(this.client.sendPictureMessage(b2a(id), {
+                file: path,
+                name: data.text
+              }));
+            });
+          })
+        }).on('error', (err) => {
+          reject(err);
+        });
+      });
+    }).finally(() => {
+      cleanup();
     });
   }
 }

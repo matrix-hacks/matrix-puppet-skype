@@ -7,9 +7,8 @@ This is a Matrix bridge for Skype. It uses [skype-http](https://github.com/ocilo
 - [x] Skype to Matrix direct text message
 - [x] Matrix to Skype direct text message
 - [x] Skype to Matrix image link posting
-- [x] Matrix to Skype image link posting
 - [ ] Skype to Matrix direct image attachment message
-- [ ] Matrix to Skype direct image attachment message
+- [x] Matrix to Skype direct image attachment message
 - [ ] group messaging
 - [ ] read receipts
 - [ ] contact list syncing

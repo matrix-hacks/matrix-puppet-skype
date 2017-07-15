@@ -4,12 +4,7 @@ const debug = require('debug')('matrix-puppet:skype:client');
 
 // look at
 // https://github.com/ocilo/skype-http/blob/master/src/example/main.ts
-
-const Promise = require('bluebird');
 const EventEmitter = require('events').EventEmitter;
-
-const readFile = Promise.promisify(require('fs').readFile);
-const writeFile = Promise.promisify(require('fs').writeFile);
 
 const Entities = require('html-entities').AllHtmlEntities;
 const entities = new Entities();
@@ -20,6 +15,18 @@ class Client extends EventEmitter {
     this.api = null;
     this.auth = auth;
     this.lastMsgId = null;
+    this.selfSentFiles = [];
+  }
+  removeSelfSentFile(s) {
+    let match = false;
+    while (true) {
+      let i = this.selfSentFiles.indexOf(s);
+      if (i == -1) {
+        return match;
+      }
+      match = true;
+      this.selfSentFiles.splice(i, 1);
+    }
   }
   connect() {
     const opts = {
@@ -31,24 +38,28 @@ class Client extends EventEmitter {
       this.api = api;
 
       api.on("event", (ev) => {
-        //console.log(JSON.stringify(ev, null, 2));
+        //console.log(ev);
 
         if (ev && ev.resource) {
           switch (ev.resource.type) {
             case "Text":
             case "RichText":
-              if (ev.resource.content.slice(-1) !== '\ufeff') {
-                if (ev.resource.from.username === api.context.username) {
-                  // the lib currently hides this kind from us. but i want it.
-
+              if (ev.resource.from.username === api.context.username) {
+                // the lib currently hides this kind from us. but i want it.
+                if (ev.resource.content.slice(-1) !== '\ufeff') {
                   this.emit('sent', ev.resource);
-                } else {
-                  this.emit('message', ev.resource);
                 }
+              } else {
+                this.emit('message', ev.resource);
               }
               break;
             case "RichText/UriObject":
-              this.emit('image', ev.resource)
+              if (!this.removeSelfSentFile(ev.resource.original_file_name)) {
+                if (ev.resource.from.username === api.context.username) {
+                  ev.resource.from.raw = undefined;
+                }
+                this.emit('image', ev.resource)
+              }
               break;
           }
         }
@@ -82,10 +93,10 @@ class Client extends EventEmitter {
     return this.api.sendMessage(msg, threadId);
   }
   sendPictureMessage(threadId, data) {
-    return this.api.sendMessage({
-      textContent: '[Image] <a href="'+entities.encode(data.url)+'">'+entities.encode(entities.encode(data.name))+'</a> \ufeff'
-    }, threadId);
-//    return this.api.sendPictureMessage(data, threadId); // it was worth a try...
+    this.selfSentFiles.push(data.name);
+    return this.api.sendImage(data, threadId).catch((err) => {
+      removeSelfSentFile(data.name);
+    });
   }
   getContactName(id) {
     let contact = this.contacts.find((c)=> {
