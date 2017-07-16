@@ -13,6 +13,7 @@ const debug = require('debug')('matrix-puppet:skype');
 const { skypeify, deskypeify } = require('./skypeify');
 const tmp = require('tmp');
 const http = require('http');
+const https = require('https');
 const Promise = require('bluebird');
 const fs = require('fs');
 
@@ -145,7 +146,13 @@ class App extends MatrixPuppetBridgeBase {
       tmp.file((err, path, fd, cleanupCallback) => {
         cleanup = cleanupCallback;
         let tmpFile = fs.createWriteStream(path);
-        let request = http.get(data.url, (response) => {
+        let handler;
+        if (data.url.toLowerCase().startsWith('https')) {
+          handler = https;
+        } else {
+          handler = http;
+        }
+        let request = handler.get(data.url, (response) => {
           response.pipe(tmpFile);
           tmpFile.on('finish', () => {
             tmpFile.close(() => {
