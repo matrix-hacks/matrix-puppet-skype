@@ -12,7 +12,7 @@
     "concat-stream": "^1.6.0",
     "debug": "^2.6.8",
     "html-entities": "^1.2.1",
-    "matrix-puppet-bridge": "matrix-hacks/matrix-puppet-bridge#b1cad73",
+    "matrix-puppet-bridge": "matrix-hacks/matrix-puppet-bridge#d5af7b9",
     "mime-types": "^2.1.14",
     "needle": "^1.4.5",
     "skype-http": "git+https://github.com/Sorunome/skype-http.git",

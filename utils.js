@@ -23,7 +23,7 @@ const downloadGetBufferAndHeaders = (url, data) => {
 };
 
 const downloadGetBufferAndType = (url, data) => {
-  return downloadGetBufferAndHeaders(url, data).then(({buffer, headers})=>{
+  return downloadGetBufferAndHeaders(url, data).then(({ buffer, headers }) => {
     let type, contentType = headers['content-type'];
     if ( contentType ) {
       type = contentType;

@@ -12,11 +12,9 @@ const puppet = new Puppet(path.join(__dirname, './config.json' ));
 const debug = require('debug')('matrix-puppet:skype');
 const { skypeify, deskypeify } = require('./skypeify');
 const tmp = require('tmp');
-const http = require('http');
-const https = require('https');
 const Promise = require('bluebird');
 const fs = require('fs');
-const { entities } = require('./utils');
+const { download, entities } = require('./utils');
 
 const a2b = a => new Buffer(a).toString('base64');
 const b2a = b => new Buffer(b, 'base64').toString('ascii');
@@ -116,7 +114,7 @@ class App extends MatrixPuppetBridgeBase {
     let payload = this.getPayload(data);
     payload.text = data.name;
     payload.path = ''; // needed to not create internal errors
-    return this.client.downloadImage(data.url).then(({buffer, type})=> {
+    return this.client.downloadImage(data.url).then(({ buffer, type }) => {
       payload.buffer = buffer;
       payload.mimetype = type;
       return this.handleThirdPartyRoomImageMessage(payload);
@@ -165,15 +163,13 @@ class App extends MatrixPuppetBridgeBase {
       tmp.file((err, path, fd, cleanupCallback) => {
         cleanup = cleanupCallback;
         let tmpFile = fs.createWriteStream(path);
-        let handler;
-        if (data.url.toLowerCase().startsWith('https')) {
-          handler = https;
-        } else {
-          handler = http;
-        }
-        let request = handler.get(data.url, (response) => {
-          response.pipe(tmpFile);
-          tmpFile.on('finish', () => {
+        //let handler;
+        download.getBufferAndType(data.url).then(({ buffer, type }) => {
+          tmpFile.write(buffer, (err) => {
+            if (err) {
+              reject(err);
+              return;
+            }
             tmpFile.close(() => {
               resolve(this.client.sendPictureMessage(b2a(id), {
                 file: path,
@@ -181,9 +177,7 @@ class App extends MatrixPuppetBridgeBase {
                 url: data.url
               }));
             });
-          })
-        }).on('error', (err) => {
-          reject(err);
+          });
         });
       });
     }).finally(() => {
