@@ -1,6 +1,5 @@
 const striptags = require("striptags");
-const Entities = require('html-entities').AllHtmlEntities;
-const entities = new Entities();
+const { entities } = require('./utils');
 
 const skypeify = function (s) {
   s = entities.encode(s);

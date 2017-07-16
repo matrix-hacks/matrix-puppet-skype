@@ -7,9 +7,7 @@ const Promise = require('bluebird');
 // https://github.com/ocilo/skype-http/blob/master/src/example/main.ts
 const EventEmitter = require('events').EventEmitter;
 
-const Entities = require('html-entities').AllHtmlEntities;
-const { download } = require('./utils');
-const entities = new Entities();
+const { download, entities } = require('./utils');
 
 class Client extends EventEmitter {
   constructor(auth) {
@@ -111,6 +109,9 @@ class Client extends EventEmitter {
     if (contact) {
       return contact;
     }
+  }
+  getConversation(id) {
+    return this.api.getConversation(id);
   }
   downloadImage(url) {
     return download.getBufferAndType(url, {

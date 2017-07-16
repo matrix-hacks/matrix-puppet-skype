@@ -4,6 +4,9 @@ const needle = require('needle');
 const mime = require('mime-types');
 const urlParse = require('url').parse;
 
+const Entities = require('html-entities').AllHtmlEntities;
+const entities = new Entities();
+
 const downloadGetStream = (url, data) => needle.get(url, data);
 
 const downloadGetBufferAndHeaders = (url, data) => {
@@ -37,4 +40,5 @@ module.exports = {
     getStream: downloadGetStream,
     getBufferAndType: downloadGetBufferAndType,
   },
+  entities,
 };

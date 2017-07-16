@@ -16,6 +16,7 @@ const http = require('http');
 const https = require('https');
 const Promise = require('bluebird');
 const fs = require('fs');
+const { entities } = require('./utils');
 
 const a2b = a => new Buffer(a).toString('base64');
 const b2a = b => new Buffer(b, 'base64').toString('ascii');
@@ -79,6 +80,20 @@ class App extends MatrixPuppetBridgeBase {
 
     return this.client.connect();
   }
+  getThirdPartyUserDataById_noPromise(id) {
+    let contact = this.client.getContact(id);
+    let payload = {}
+    if (contact) {
+      payload.senderName = contact.name.displayName;
+      payload.avatarUrl = contact.avatarUrl;
+    } else if (data.sender.indexOf(":") =! -1) {
+      payload.senderName = data.sender.substr(data.sender.indexOf(":")+1);
+      payload.avatarUrl = 'https://avatars.skype.com/v1/avatars/' + entities.encode(payload.senderName) + '/public?returnDefaultImage=false&cacheHeaders=true';
+    } else {
+      payload.senderName = id;
+    }
+    return payload;
+  }
   getPayload(data) {
     let payload = {
       roomId: data.roomId.replace(':', '^'),
@@ -86,14 +101,8 @@ class App extends MatrixPuppetBridgeBase {
     if (data.sender === undefined) {
       payload.senderId = undefined;
     } else {
-      let contact = this.client.getContact(data.sender);
       payload.senderId = a2b(data.sender);
-      if (contact) {
-        payload.senderName = contact.name.displayName;
-        payload.avatarUrl = contact.avatarUrl;
-      } else {
-        payload.senderName = data.sender.substr(data.sender.indexOf(":")+1);
-      }
+      Object.assign(payload, this.getThirdPartyUserDataById_noPromise(data.sender));
     }
     console.log(payload);
     return payload;
@@ -119,18 +128,28 @@ class App extends MatrixPuppetBridgeBase {
   }
   getThirdPartyUserDataById(id) {
     let raw = b2a(id);
-    let name = this.client.getContactName(raw) || raw;
-    return Promise.resolve({
-      senderName: name
-    })
+    return Promise.resolve(this.getThirdPartyUserDataById_noPromise(raw));
   }
   getThirdPartyRoomDataById(id) {
     let raw = b2a(id);
-    let name = this.client.getContactName(raw) || raw;
-    return Promise.resolve({
-      name: name,
-      topic: "Skype Direct Message"
-    })
+    let payload = {};
+    let contact = this.client.getContact(raw);
+    if (contact) {
+      return Promise.resolve({
+        name: deskypeify(contact.name.displayName),
+        topic: "Skype Direct Message"
+      });
+    }
+    return new Promise((resolve, reject) => {
+      this.client.getConversation(raw).then((res) => {
+        resolve({
+          name: deskypeify(res.threadProperties.topic),
+          topic: res.type.toLowerCase() == "conversation" ? "Skype Direct Message" : "Skype Group Chat"
+        });
+      }).catch((err) => {
+        reject(err);
+      });
+    });
   }
   sendReadReceiptAsPuppetToThirdPartyRoomWithId() {
     // no-op for now
