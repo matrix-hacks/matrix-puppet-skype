@@ -1,6 +1,9 @@
-/*.sqlite
-/data
 node_modules
+logs/
+persist/
 *.db
 *.yaml
 config.json
+appstate.json
+package-lock.json
+dist/

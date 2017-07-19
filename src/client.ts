@@ -1,17 +1,20 @@
 const fs = require('fs');
 const skypeHttp = require('skype-http');
 const debug = require('debug')('matrix-puppet:skype:client');
-const Promise = require('bluebird');
 
 // look at
 // https://github.com/ocilo/skype-http/blob/master/src/example/main.ts
-const EventEmitter = require('events').EventEmitter;
+export const EventEmitter = require('events').EventEmitter;
 
-const { download, entities } = require('./utils');
+import { download, entities } from 'matrix-puppet-bridge';
 
-class Client extends EventEmitter {
-  constructor(auth) {
-    super();
+export interface AuthParams {
+  username: string;
+  password: string;
+}
+
+export class SkypeClient extends EventEmitter {
+  configure(auth : AuthParams) {
     this.api = null;
     this.auth = auth;
     this.lastMsgId = null;
@@ -32,7 +35,7 @@ class Client extends EventEmitter {
     const opts = {
       credentials: this.auth,
       verbose: true
-    }
+    };
 
     return skypeHttp.connect(opts).then(api => {
       this.api = api;
@@ -82,8 +85,6 @@ class Client extends EventEmitter {
     }).then(()=>{
       console.log('setting status online');
       return this.api.setStatus('Online');
-
-      console.log(api);
     }).catch(err=>{
       console.log(err);
       process.exit(0);
@@ -121,21 +122,4 @@ class Client extends EventEmitter {
       }
     });
   }
-}
-
-module.exports = Client;
-
-if (!module.parent) {
-  const client = new Client(require('./config.json').skype);
-  client.connect().then(function() {
-    client.on('message', (ev) => {
-      console.log('>>> message', ev);
-    });
-
-    client.on('sent', (ev) => {
-      console.log('>>> sent', ev);
-    });
-
-    client.sendMessage('8:green.streak', { textContent: 'test from nodejs' });
-  });
 }

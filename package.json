@@ -1,21 +1,27 @@
 {
   "name": "matrix-puppet-skype",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "2.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "license": "MIT",
   "scripts": {
-    "start": "DEBUG=matrix-puppet:* node index.js",
+    "prepare": "tsc",
+    "start": "DEBUG=matrix-puppet:* node dist/index.js",
     "postinstall": "cd node_modules/skype-http && npm install && npm run prepare"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
     "concat-stream": "^1.6.0",
     "debug": "^2.6.8",
     "html-entities": "^1.2.1",
-    "matrix-puppet-bridge": "matrix-hacks/matrix-puppet-bridge#d5af7b9",
+    "matrix-puppet-bridge": "^2.0.0",
     "mime-types": "^2.1.14",
     "needle": "^1.4.5",
     "skype-http": "git+https://github.com/Sorunome/skype-http.git",
-    "striptags": "^3.0.1"
+    "striptags": "^3.0.1",
+    "tmp": "^0.0.31"
+  },
+  "devDependencies": {
+    "typescript": "^2.3.4",
+    "@types/node": "^8.0.14"
   }
 }

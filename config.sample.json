@@ -1,13 +1,31 @@
 {
-  "skype": {
-    "username": "",
-    "password": ""
-  },
-  "registrationPath": "skype-registration.yaml",
+  "servicePrefix": "skype",
+  "serviceName": "Skype",
   "port": 8090,
-  "bridge": {
-    "homeserverUrl":"https://your.home.server",
-    "domain": "your.home.server",
-    "registration": "skype-registration.yaml"
-  }
+  "homeserverDomain": "your.home.server",
+  "homeserverUrl": "https://your.home.server",
+  "registrationPath": "registration.yaml",
+  "statusRoomPostfix": "puppetStatusRoom",
+  "identityPairs": [
+    {
+      "id": "a",
+      "matrixPuppet": {
+        "localpart": ""
+      },
+      "thirdParty": {
+        "username": "",
+        "password": ""
+      }
+    },
+    {
+      "id": "b",
+      "matrixPuppet": {
+        "localpart": ""
+      },
+      "thirdParty": {
+        "username": "",
+        "password": ""
+      }
+    }
+  ]
 }
