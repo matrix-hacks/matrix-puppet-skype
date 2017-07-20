@@ -135,14 +135,17 @@ export class Adapter extends ThirdPartyAdapter {
     if (contact) {
       return Promise.resolve(<RoomData>{
         name: deskypeify(contact.name.displayName),
-        topic: "Skype Direct Message"
+        topic: "Skype Direct Message",
+        isDirect: true,
       });
     }
     return new Promise<RoomData>((resolve, reject) => {
       this.client.getConversation(id).then((res) => {
+        let isDirect = res.type.toLowerCase() == "conversation";
         resolve({
           name: deskypeify(res.threadProperties.topic),
-          topic: res.type.toLowerCase() == "conversation" ? "Skype Direct Message" : "Skype Group Chat"
+          topic: isDirect ? "Skype Direct Message" : "Skype Group Chat",
+          isDirect,
         });
       }).catch((err) => {
         reject(err);
