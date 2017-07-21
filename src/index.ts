@@ -23,7 +23,7 @@ export class Adapter extends ThirdPartyAdapter {
     this.client.configure(this.config);
     
     this.client.on('error', (err) => {
-      this.base.sendStatusMsg({}, err);
+      this.puppetBridge.sendStatusMsg({}, err);
     });
     
     this.client.on('message', (data) => {
@@ -106,7 +106,7 @@ export class Adapter extends ThirdPartyAdapter {
   handleSkypeMessage(data) {
     let payload = <ThirdPartyMessagePayload>this.getPayload(data);
     payload.text = deskypeify(data.content);
-    return this.base.handleThirdPartyRoomMessage(payload);
+    return this.puppetBridge.sendMessage(payload);
   }
   
   handleSkypeImage(data) {
@@ -115,11 +115,11 @@ export class Adapter extends ThirdPartyAdapter {
     return this.client.downloadImage(data.url).then(({ buffer, type }) => {
       payload.buffer = buffer;
       payload.mimetype = type;
-      return this.base.handleThirdPartyRoomImageMessage(payload);
+      return this.puppetBridge.sendImageMessage(payload);
     }).catch((err) => {
       console.log(err);
       payload.text = '[Image] ('+data.name+') '+data.url;
-      return this.base.handleThirdPartyRoomMessage(payload);
+      return this.puppetBridge.sendMessage(payload);
     });
   }
   
@@ -134,7 +134,6 @@ export class Adapter extends ThirdPartyAdapter {
     let contact = this.client.getContact(id);
     if (contact) {
       return Promise.resolve(<RoomData>{
-        name: deskypeify(contact.name.displayName),
         topic: "Skype Direct Message",
         isDirect: true,
       });
@@ -143,7 +142,7 @@ export class Adapter extends ThirdPartyAdapter {
       this.client.getConversation(id).then((res) => {
         let isDirect = res.type.toLowerCase() == "conversation";
         resolve({
-          name: deskypeify(res.threadProperties.topic),
+          name: isDirect ? undefined : deskypeify(res.threadProperties.topic),
           topic: isDirect ? "Skype Direct Message" : "Skype Group Chat",
           isDirect,
         });
