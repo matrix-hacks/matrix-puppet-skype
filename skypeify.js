@@ -2,7 +2,15 @@ const striptags = require("striptags");
 const { entities } = require('./utils');
 
 const skypeify = function (s) {
-  s = entities.encode(s);
+  const replacements = [
+    ['&', '&amp;'],
+    ['>', '&gt;'],
+    ['<', '&lt;'],
+    ['"', '&quot;'],
+  ];
+  for (let i = 0; i < replacements.length; i++) {
+    s = s.replace(replacements[i][0], replacements[i][1]);
+  }
   // url regex from https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url
   s = s.replace(/(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}[-a-zA-Z0-9@:%_\+.~#?&//=]*)/gi, function (match, href) {
     // stuff is already encoded here
