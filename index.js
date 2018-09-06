@@ -84,9 +84,6 @@ class App extends MatrixPuppetBridgeBase {
     if (contact) {
       payload.senderName = contact.name.displayName;
       payload.avatarUrl = contact.avatarUrl;
-    } else if (data.sender.indexOf(":") =! -1) {
-      payload.senderName = data.sender.substr(data.sender.indexOf(":")+1);
-      payload.avatarUrl = 'https://avatars.skype.com/v1/avatars/' + entities.encode(payload.senderName) + '/public?returnDefaultImage=false&cacheHeaders=true';
     } else {
       payload.senderName = id;
     }
@@ -141,7 +138,7 @@ class App extends MatrixPuppetBridgeBase {
     return new Promise((resolve, reject) => {
       this.client.getConversation(raw).then((res) => {
         resolve({
-          name: deskypeify(res.threadProperties.topic),
+          name: "",
           topic: res.type.toLowerCase() == "conversation" ? "Skype Direct Message" : "Skype Group Chat"
         });
       }).catch((err) => {
