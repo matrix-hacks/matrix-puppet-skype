@@ -103,12 +103,6 @@ class Client extends EventEmitter {
     });
   }
   getContact(id) {
-    let contact = this.contacts.find((c) => {
-      return c.id.id === id || c.id.raw === id;
-    });
-    if (contact) {
-      return contact;
-    }
   }
   getConversation(id) {
     return this.api.getConversation(id);
