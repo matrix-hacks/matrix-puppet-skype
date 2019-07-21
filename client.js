@@ -104,7 +104,7 @@ class Client extends EventEmitter {
   }
   getContact(id) {
     let contact = this.contacts.find((c) => {
-      return c.id.id === id || c.id.raw === id;
+      return c.personId === id || c.mri === id;
     });
     if (contact) {
       return contact;

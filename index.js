@@ -82,8 +82,8 @@ class App extends MatrixPuppetBridgeBase {
     let contact = this.client.getContact(id);
     let payload = {}
     if (contact) {
-      payload.senderName = contact.name.displayName;
-      payload.avatarUrl = contact.avatarUrl;
+      payload.senderName = contact.displayName;
+      payload.avatarUrl = contact.profile.avatarUrl;
     } else if (data.sender.indexOf(":") =! -1) {
       payload.senderName = data.sender.substr(data.sender.indexOf(":")+1);
       payload.avatarUrl = 'https://avatars.skype.com/v1/avatars/' + entities.encode(payload.senderName) + '/public?returnDefaultImage=false&cacheHeaders=true';
@@ -134,7 +134,7 @@ class App extends MatrixPuppetBridgeBase {
     let contact = this.client.getContact(raw);
     if (contact) {
       return Promise.resolve({
-        name: deskypeify(contact.name.displayName),
+        name: deskypeify(contact.displayName),
         topic: "Skype Direct Message"
       });
     }
@@ -196,6 +196,7 @@ new Cli({
       reg.setAppServiceToken(AppServiceRegistration.generateToken());
       reg.setSenderLocalpart("skypebot");
       reg.addRegexPattern("users", "@skype_.*", true);
+      reg.addRegexPattern("aliases", "#skype_.*", true);
       callback(reg);
     }).catch(err=>{
       console.error(err.message);
