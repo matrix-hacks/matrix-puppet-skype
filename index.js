@@ -84,8 +84,8 @@ class App extends MatrixPuppetBridgeBase {
     if (contact) {
       payload.senderName = contact.displayName;
       payload.avatarUrl = contact.profile.avatarUrl;
-    } else if (data.sender.indexOf(":") =! -1) {
-      payload.senderName = data.sender.substr(data.sender.indexOf(":")+1);
+    } else if (id.indexOf(":") !== -1) {
+      payload.senderName = id.substr(id.indexOf(":")+1);
       payload.avatarUrl = 'https://avatars.skype.com/v1/avatars/' + entities.encode(payload.senderName) + '/public?returnDefaultImage=false&cacheHeaders=true';
     } else {
       payload.senderName = id;
