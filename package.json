@@ -12,7 +12,7 @@
     "concat-stream": "^1.6.0",
     "debug": "^2.6.8",
     "html-entities": "^1.2.1",
-    "matrix-puppet-bridge": "github:matrix-hacks/matrix-puppet-bridge#c16ac9f",
+    "matrix-puppet-bridge": "github:matrix-hacks/matrix-puppet-bridge#219d46f",
     "mime-types": "^2.1.14",
     "needle": "^1.4.5",
     "skype-http": "^0.0.15",
