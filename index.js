@@ -31,6 +31,7 @@ class App extends MatrixPuppetBridgeBase {
 
     this.client.on('error', (err) => {
       this.sendStatusMsg({}, err);
+      this.client.connect();
     });
 
     this.client.on('message', (data) => {
