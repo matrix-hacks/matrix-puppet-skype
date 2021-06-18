@@ -16,6 +16,6 @@
     "mime-types": "^2.1.14",
     "needle": "^1.4.5",
     "skype-http": "^0.0.15",
-    "striptags": "^3.0.1"
+    "striptags": "^3.2.0"
   }
 }
